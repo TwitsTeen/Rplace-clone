@@ -1,13 +1,25 @@
 import { useState } from "react";
 
-const Grid = ({ size, selectedColor }) => {
-  const [grid, setGrid] = useState(Array(size * size).fill("#FFFFFF"));
-
+const Grid = ({ grid, setGrid, selectedColor, getData, serverURL }) => {
   const handleCellClick = (index) => {
-    const newGrid = [...grid];
-    newGrid[index] = selectedColor;
-    setGrid(newGrid);
+    fetch(`${serverURL}/grid/${index}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ color: selectedColor }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log("Success:", data))
+      .catch((error) => console.error("Error:", error))
+      .finally(() => getData());
   };
+
+  const size = grid ? Math.sqrt(grid.length) : 0;
+
+  if (!grid) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div
